@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="BAMPC studies how to allocate a fixed real-time sampling budget for contact-rich manipulation." />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <meta property="og:title" content="Do My Samples Help?" />
+    <meta property="og:description" content="Compute Budget Allocation for Real-World Sampling-Based MPC in Contact-Rich Manipulation" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://bampc-framework.github.io/assets/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Do My Samples Help?" />
+    <meta name="twitter:description" content="Compute Budget Allocation for Real-World Sampling-Based MPC in Contact-Rich Manipulation" />
+    <meta name="twitter:image" content="https://bampc-framework.github.io/assets/og.png" />
+    <title>BAMPC | Compute Budget Allocation for Real-World SMPC</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header" aria-label="Primary navigation">
+      <a class="wordmark" href="#top" aria-label="BAMPC home"><span class="wordmark-mark" aria-hidden="true"></span>BAMPC</a>
+      <nav><a href="#overview">Overview</a><a href="#framework">Framework</a><a href="#findings">Findings</a><a href="#experiments">Experiments</a></nav>
+    </header>
+
+    <main id="top">
+      <section class="hero section-shell">
+        <p class="eyebrow">Anonymous research project · ICRA 2027 submission</p>
+        <h1>Do My Samples Help?</h1>
+        <p class="hero-subtitle">Compute Budget Allocation for Real-World Sampling-Based MPC in Contact-Rich Manipulation</p>
+        <p class="hero-deck">A systematic study of where a finite real-time simulation budget should go: control exploration, state uncertainty, dynamics uncertainty, or temporal alignment.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#overview">Read the overview</a><span class="button button-muted" aria-label="Paper withheld during anonymous review">Paper · under review</span></div>
+      </section>
+
+      <section class="tldr section-shell" id="overview">
+        <div class="section-kicker">TL;DR</div>
+        <p>More samples are not automatically better. The strongest allocation depends on the dominant sim-to-real error: state ensembles help under visual occlusion, while temporal alignment matters most for fast rolling dynamics.</p>
+      </section>
+
+      <section class="abstract-section section-shell reveal">
+        <div><p class="section-kicker">Abstract</p><h2>A finite budget. Four competing ways to spend it.</h2></div>
+        <div class="abstract-copy"><p>GPU physics makes sampling-based model predictive control practical for contact-rich manipulation, but the number of rollouts that fit inside a real-time control cycle remains finite. Those samples can explore more controls, represent state or dynamics uncertainty, or support better temporal alignment between simulation and the real system.</p><p>BAMPC makes these allocations directly comparable in a common MuJoCo Warp planning and deployment stack. Across contact-rich manipulation studies, the results show that there is no universally best allocation: compute should target the dominant source of sim-to-real error for the task at hand.</p></div>
+      </section>
+
+      <section class="figure-section section-shell reveal" id="framework">
+        <div class="section-heading centered"><p class="section-kicker">Framework</p><h2>One stack, explicit trade-offs.</h2><p>Every candidate is evaluated in a shared flattened rollout batch, allowing control candidates and uncertainty realizations to compete for exactly the same real-time simulation budget.</p></div>
+        <div class="figure-frame"><img src="assets/bampc-framework.png" alt="BAMPC framework showing a fixed real-time compute budget split across temporal alignment, control exploration, state uncertainty, and dynamics uncertainty." /></div>
+        <p class="caption">BAMPC exposes four competing uses of computation in one GPU-parallel planning and real-robot control stack.</p>
+      </section>
+
+      <section class="allocation-section" aria-labelledby="allocation-title">
+        <div class="section-shell reveal">
+          <div class="section-heading"><p class="section-kicker">The allocation problem</p><h2 id="allocation-title">Where should the compute go?</h2></div>
+          <div class="budget-bar" aria-label="A fixed GPU simulation budget"><span>Fixed GPU simulation budget</span><div class="budget-blocks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+          <div class="allocation-grid">
+            <article class="allocation-card blue-card"><span class="card-index">01</span><h3>Control exploration</h3><p>Evaluate more distinct candidate action sequences.</p><span class="formula">S candidates</span></article>
+            <article class="allocation-card red-card"><span class="card-index">02</span><h3>State uncertainty</h3><p>Test each candidate from multiple plausible initial states.</p><span class="formula">Rₓ states</span></article>
+            <article class="allocation-card green-card"><span class="card-index">03</span><h3>Dynamics uncertainty</h3><p>Evaluate controls across alternative physical parameters.</p><span class="formula">Rθ models</span></article>
+            <article class="allocation-card violet-card"><span class="card-index">04</span><h3>Temporal alignment</h3><p>Spend steps on settling, prediction, or faster feedback.</p><span class="formula">t alignment</span></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="findings-section section-shell" id="findings">
+        <div class="section-heading centered reveal"><p class="section-kicker">Key findings</p><h2>Spend compute where the task is uncertain.</h2></div>
+        <div class="findings-grid">
+          <article class="finding finding-dark reveal"><p class="finding-number">4.8×</p><h3>faster at 256 worlds</h3><p>The MuJoCo Warp backend substantially outpaces a comparable JAX/MJX implementation under matched planning settings.</p></article>
+          <article class="finding reveal"><p class="finding-number">≈11.8k</p><h3>parallel worlds at 10 Hz</h3><p>Large rollout populations fit inside a real-time cycle on a single modern GPU, with task-specific limits.</p></article>
+          <article class="finding reveal"><p class="finding-number">2 min</p><h3>continuous balance tracking</h3><p>With temporal alignment, the real system tracks a moving target while keeping the rolling object balanced.</p></article>
+        </div>
+      </section>
+
+      <section class="experiments-section" id="experiments">
+        <div class="section-shell">
+          <div class="section-heading centered reveal"><p class="section-kicker">Experiments</p><h2>Different errors reward different allocations.</h2><p>The experiments isolate the dominant failure mode, then compare alternative uses of the same finite rollout budget.</p></div>
+          <article class="experiment experiment-push reveal">
+            <div class="experiment-copy"><p class="experiment-label">01 · Push-to-Track</p><h3>Represent the state when vision becomes uncertain.</h3><p>A moving target forces sustained pushing and repeated visual occlusion. Evaluating every candidate across a belief ensemble reduces position error for both CEM and Predictive Sampling, despite leaving fewer samples for distinct controls.</p><ul class="plain-list"><li>Dominant error: object-pose uncertainty</li><li>Best allocation: moderate state ensemble</li><li>Aggregation: empirical mean</li></ul></div>
+            <button class="figure-button" type="button" data-lightbox="assets/push-real-world.png" data-alt="Real-world Push-to-Track position and rotation error plots for point-state and state-ensemble planning."><img src="assets/push-real-world.png" alt="Real-world Push-to-Track position and rotation error plots for point-state and state-ensemble planning." /><span>Open figure</span></button>
+          </article>
+          <article class="experiment experiment-balance reveal">
+            <button class="figure-button" type="button" data-lightbox="assets/balance-real-world.png" data-alt="Balance-to-Track rolling tracking error and ball-versus-goal trajectories."><img src="assets/balance-real-world.png" alt="Balance-to-Track rolling tracking error and ball-versus-goal trajectories." /><span>Open figure</span></button>
+            <div class="experiment-copy"><p class="experiment-label">02 · Balance-to-Track</p><h3>Align time when the dynamics move fast.</h3><p>Small inconsistencies in an initialized rolling state quickly become large trajectory errors. Settling the rollout state and accounting for control latency outperform spending the saved compute on more candidates or more frequent replanning.</p><ul class="plain-list"><li>Dominant error: temporal misalignment</li><li>Best allocation: settling and forward prediction</li><li>Result: bounded tracking over a two-minute run</li></ul></div>
+          </article>
+          <article class="analysis-card reveal">
+            <div class="analysis-figure"><button class="figure-button" type="button" data-lightbox="assets/state-uncertainty.png" data-alt="Simulation ablations for state estimate, ensemble realization count, and belief width."><img src="assets/state-uncertainty.png" alt="Simulation ablations for state estimate, ensemble realization count, and belief width." /><span>Open figure</span></button></div>
+            <div class="analysis-copy"><p class="experiment-label">State uncertainty ablations</p><h3>More uncertainty is not always better.</h3><p>Increasing the number of state realizations generally helps, but with diminishing returns. An intermediate belief width performs best; excessively narrow or wide beliefs both increase error.</p><blockquote>The useful question is not “How many samples can we run?” but “Which mismatch should those samples represent?”</blockquote></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="takeaway section-shell reveal"><p class="section-kicker">Takeaway</p><h2>No allocation wins everywhere.</h2><p>State uncertainty is valuable when perception dominates. Temporal alignment is decisive when unobserved fast dynamics make the rollout state inconsistent. Dynamics randomization is useful when physics mismatch is truly the limiting factor—not as a universal default.</p><a class="button button-primary" href="#top">Back to top</a></section>
+      <dialog class="lightbox" aria-label="Expanded research figure"><button class="lightbox-close" type="button" aria-label="Close expanded figure">Close</button><img src="assets/bampc-framework.png" alt="Expanded research figure" /></dialog>
+    </main>
+
+    <footer><div class="section-shell footer-inner"><span>BAMPC · Anonymous research project</span><span>Identifying information intentionally omitted for double-blind review.</span></div></footer>
+    <script src="script.js"></script>
+  </body>
+</html>
