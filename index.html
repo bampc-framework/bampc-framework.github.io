@@ -43,7 +43,7 @@
       <section class="summary" id="overview">
         <div class="page-width summary-inner">
           <p class="label">In brief</p>
-          <p>More samples are not automatically better. Under a fixed real-time budget, compute should be allocated to the source of sim-to-real mismatch that most strongly changes the predicted outcome.</p>
+          <p>Spend compute on the error source that feedback can't already fix, not on dynamics randomization by default. Fast replanning corrects moderate model mismatch on its own, dynamics uncertainty only pays off when errors accumulate open-loop. Perception drift calls for state uncertainty; misaligned initial contact dynamics call for temporal alignment, not more model hypotheses.</p>
         </div>
       </section>
 
@@ -81,7 +81,7 @@
           <div class="section-heading">
             <p class="label">Experiments</p>
             <h2>Experimental evaluation</h2>
-            <p>The experiments span quasi-static pushing under occlusion, fast rolling dynamics, and a brief impact followed by open-loop motion.</p>
+            <p>We evaluate on three real-robot tasks spanning distinct sim-to-real regimes: quasi-static pushing under visual occlusion, fast rolling dynamics under continuous feedback, and a brief impact followed by open-loop motion.</p>
           </div>
           <figure class="paper-figure task-overview">
             <img src="assets/task-overview.png" alt="Simulation and real-world views of Push-to-Track, Balance-to-Track, and Puck Striking." />
@@ -152,11 +152,11 @@
 
       <section class="closing">
         <div class="page-width two-column">
-          <div><p class="label">Practical guidance</p><h2>Reallocate compute only when a measurable failure mode motivates it.</h2></div>
+          <div><p class="label">Practical guidance</p><h2>Reallocate compute only in response to a measurable failure mode, not by default.</h2></div>
           <div class="body-copy">
-            <p>Before adding uncertainty dimensions, perturb plausible sources of sim-to-real error over realistic ranges and test whether they materially affect predicted performance. If the controller is insensitive to a parameter, maintaining an online ensemble is unlikely to justify the control samples it consumes. Parameters that can be identified through a short calibration should be estimated instead of continuously randomized.</p>
-            <p>State and dynamics uncertainty require different treatment. State error can reappear at every replanning step and change abruptly under occlusion or contact, so a modest state ensemble can be valuable when plausible states lead to different contact outcomes. Dynamics ensembles are more appropriate when several parameter values remain difficult to distinguish and produce meaningfully different trajectories.</p>
-            <p>Temporal consistency should be checked before increasing exploration. Faster replanning helps only when rollouts begin from a state that predicts the near-future physical motion accurately. Start with sufficient control exploration, then reallocate compute to state uncertainty, dynamics uncertainty, or temporal alignment only when the observed mismatch calls for it.</p>
+            <p>Start with sufficient control exploration, and before adding uncertainty dimensions, perturb plausible sources of sim-to-real error over realistic ranges to test whether they materially affect predicted performance. If the controller is insensitive to a parameter, a rough estimate is enough: an online ensemble is unlikely to justify the control samples it consumes. Parameters that are both influential and identifiable through a short calibration should be estimated rather than continuously randomized.</p>
+            <p>State and dynamics uncertainty call for different treatment. State error can reappear at every replanning step and change abruptly under occlusion or contact, so a modest state ensemble is valuable when plausible states lead to different contact outcomes. Dynamics ensembles are more appropriate when parameter values remain hard to distinguish online and errors compound over a long or open-loop horizon where feedback cannot intervene to correct them.</p>
+            <p>Check temporal consistency before increasing exploration further: faster replanning only helps when the simulated rollout state is already aligned with the physical system: no replanning rate or sample count compensates for a rollout that starts from an inconsistent state.</p>
           </div>
         </div>
       </section>
