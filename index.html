@@ -91,7 +91,7 @@
             <div class="experiment-copy">
               <p class="experiment-number">01 / Push-to-Track</p>
               <h3>Allocate samples to state uncertainty.</h3>
-              <p>Repeated occlusion makes object pose the dominant source of error. A 16-particle state ensemble improves both CEM and Predictive Sampling despite reducing the number of distinct control candidates.</p>
+              <p>Repeated occlusion makes object pose the dominant source of error, which cannot be resolved through improved tracking alone. A 16-particle state ensemble improves both CEM and Predictive Sampling despite reducing the number of distinct control candidates.</p>
               <dl><div><dt>Operating point</dt><dd>10 Hz</dd></div><div><dt>Point baseline</dt><dd>9,600 controls</dd></div><div><dt>Ensemble</dt><dd>16 states &times; 600 controls</dd></div></dl>
             </div>
             <figure class="paper-figure compact-figure"><img src="assets/push-real-world.png" alt="Real-world Push-to-Track position and rotation errors for point-state and ensemble planning." /><figcaption>State ensembles reduce position error for both planners across 20 trials.</figcaption></figure>
@@ -111,7 +111,7 @@
             <div class="experiment-copy">
               <p class="experiment-number">02 / Balance-to-Track</p>
               <h3>Allocate simulation steps to temporal alignment.</h3>
-              <p>Small errors in the initialized rolling state rapidly become large prediction errors. Around 10 to 15 settle steps align the simulated contact state; too few react late, while too many advance the simulated ball too far.</p>
+              <p>Because the sphere’s rolling state is only partially observable, small errors in its initialization rapidly become large prediction errors. Around 10 to 15 settle steps align the simulated contact state; too few cause delayed reactions, while too many advance the simulated ball too far.</p>
               <dl><div><dt>Operating point</dt><dd>20 Hz</dd></div><div><dt>Selected setting</dt><dd>12 settle steps</dd></div><div><dt>Longest run</dt><dd>2 min 45 s</dd></div></dl>
             </div>
             <figure class="paper-figure compact-figure"><img src="assets/balance-real-world.png" alt="Balance-to-Track error and ball-versus-goal trajectory over a two-minute run." /><figcaption>Bounded tracking error during a two-minute real-world run.</figcaption></figure>
